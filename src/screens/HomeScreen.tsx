@@ -17,7 +17,7 @@ export default function HomeScreen() {
     <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
       <View className="flex-1 justify-center items-center px-6">
         <Text className="text-2xl font-bold text-gray-900 text-center mb-8">
-          Welcome! 👋
+          Welcome! Brother👋
         </Text>
         
         <TouchableOpacity
