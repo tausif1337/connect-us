@@ -6,11 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Switch,
   Alert,
   ScrollView,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -34,7 +31,6 @@ export default function ProfileScreen() {
 
   const [photoURL, setPhotoURL] = useState<string | null>(null);
   const [bio, setBio] = useState("");
-  const [publicProfile, setPublicProfile] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -42,19 +38,17 @@ export default function ProfileScreen() {
 
     async function loadProfile() {
       try {
-        setPhotoURL(user?.photoURL ?? null);
-
         const snap = await getDoc(doc(db, "users", user!.uid));
         if (snap.exists()) {
           const data = snap.data();
+          setPhotoURL(data.photoURL || user?.photoURL || null);
           if (data.bio) setBio(data.bio);
-          if (typeof data.publicProfile === "boolean") {
-            setPublicProfile(data.publicProfile);
-          }
-          if (data.photoURL) setPhotoURL(data.photoURL);
+        } else {
+          setPhotoURL(user?.photoURL || null);
         }
       } catch (e) {
         console.warn("Profile load failed:", e);
+        setPhotoURL(user?.photoURL || null);
       }
     }
 
@@ -73,7 +67,7 @@ export default function ProfileScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      quality: 0.7,
+      quality: 0.5,
     });
 
     if (result.canceled) return;
@@ -89,18 +83,13 @@ export default function ProfileScreen() {
 
     try {
       const imageUrl = await uploadToCloudinary(uri);
-
       setPhotoURL(imageUrl);
 
       await updateProfile(auth.currentUser!, {
         photoURL: imageUrl,
       });
 
-      await setDoc(
-        doc(db, "users", user.uid),
-        { photoURL: imageUrl },
-        { merge: true }
-      );
+      Alert.alert("Success", "Profile photo updated.");
     } catch (e) {
       Alert.alert("Upload failed", "Could not upload image.");
     } finally {
@@ -108,7 +97,7 @@ export default function ProfileScreen() {
     }
   }
 
-  async function saveProfile() {
+  async function saveBio() {
     if (!user) return;
 
     setLoading(true);
@@ -117,14 +106,13 @@ export default function ProfileScreen() {
         doc(db, "users", user.uid),
         {
           bio: bio.trim(),
-          publicProfile,
           updatedAt: new Date(),
         },
         { merge: true }
       );
-      Alert.alert("Saved", "Profile updated successfully.");
+      Alert.alert("Saved", "Bio updated successfully.");
     } catch (e) {
-      Alert.alert("Error", "Could not save profile.");
+      Alert.alert("Error", "Could not save bio.");
     } finally {
       setLoading(false);
     }
@@ -132,17 +120,12 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top", "bottom"]}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        className="flex-1"
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="flex-1 px-6 py-10">
+        <View className="flex-1 px-6 py-10">
             <TouchableOpacity
               onPress={() => navigation.navigate("Home")}
               className="mb-6"
@@ -153,11 +136,8 @@ export default function ProfileScreen() {
             </TouchableOpacity>
 
             <View className="items-center mb-8">
-              <Text className="text-3xl font-bold text-gray-900 mb-2">
+              <Text className="text-3xl font-bold text-gray-900">
                 Your Profile
-              </Text>
-              <Text className="text-gray-500 text-center text-sm">
-                Customize your profile information
               </Text>
             </View>
 
@@ -204,23 +184,8 @@ export default function ProfileScreen() {
                 />
               </View>
 
-              <View className="flex-row justify-between items-center border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50 mb-4">
-                <View>
-                  <Text className="font-semibold text-gray-900">
-                    Public Profile
-                  </Text>
-                  <Text className="text-sm text-gray-500">
-                    Visible to other users
-                  </Text>
-                </View>
-                <Switch
-                  value={publicProfile}
-                  onValueChange={setPublicProfile}
-                />
-              </View>
-
               <TouchableOpacity
-                onPress={saveProfile}
+                onPress={saveBio}
                 disabled={loading}
                 className="bg-black rounded-xl py-4 mb-4"
                 activeOpacity={0.8}
@@ -229,7 +194,7 @@ export default function ProfileScreen() {
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <Text className="text-white text-center font-bold text-base">
-                    Save Profile
+                    Save Bio
                   </Text>
                 )}
               </TouchableOpacity>
@@ -242,8 +207,7 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 }
