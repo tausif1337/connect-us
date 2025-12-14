@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../services/firebase";
 import { subscribeToPosts } from "../services/postService";
 import { Post } from "../types/post";
 import PostCard from "../components/PostCard";
@@ -93,10 +99,7 @@ export default function HomeScreen() {
       {/* Bottom Navigation Bar */}
       <View className="bg-white border-t border-gray-200 px-4 py-3">
         <View className="flex-row items-center justify-around">
-          <TouchableOpacity
-            className="items-center"
-            activeOpacity={0.8}
-          >
+          <TouchableOpacity className="items-center" activeOpacity={0.8}>
             <Text className="text-2xl mb-1">🏠</Text>
             <Text className="text-xs font-semibold text-gray-900">Home</Text>
           </TouchableOpacity>

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../services/firebase";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
@@ -159,6 +159,8 @@ export default function SignupScreen() {
                     setEmailError("");
                   }}
                   keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
                 />
                 {emailError ? (
                   <Text className="text-red-500 text-sm mb-3 px-1">
@@ -180,6 +182,8 @@ export default function SignupScreen() {
                     setPasswordError("");
                   }}
                   secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
                 />
                 {passwordError ? (
                   <Text className="text-red-500 text-sm mb-3 px-1">

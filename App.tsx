@@ -3,7 +3,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "./src/firebase";
+import { auth } from "./src/services/firebase";
 import { AuthContext } from "./src/contexts/AuthContext";
 import "./global.css";
 

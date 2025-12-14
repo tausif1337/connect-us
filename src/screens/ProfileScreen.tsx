@@ -14,11 +14,11 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { AuthContext } from "../contexts/AuthContext";
-import { auth, db } from "../firebase";
+import { auth, db } from "../services/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "firebase/auth";
-import { uploadToCloudinary } from "../uploadImageToCloudinary";
+import { uploadProfileImageToCloudinary } from "../services/cloudinaryService";
 
 type ProfileScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -82,7 +82,7 @@ export default function ProfileScreen() {
     setLoading(true);
 
     try {
-      const imageUrl = await uploadToCloudinary(uri);
+      const imageUrl = await uploadProfileImageToCloudinary(uri);
       setPhotoURL(imageUrl);
 
       await updateProfile(auth.currentUser!, {
