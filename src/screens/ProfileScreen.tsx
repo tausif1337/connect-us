@@ -262,13 +262,13 @@ export default function ProfileScreen() {
           </View>
         }
         ListEmptyComponent={
-          !postsLoading && (
+          !postsLoading ? (
             <View className="flex-1 items-center justify-center py-20 px-4">
               <Text className="text-gray-500 text-center text-base">
                 No posts yet. Create your first post!
               </Text>
             </View>
-          )
+          ) : null
         }
         ListFooterComponent={
           postsLoading ? (
