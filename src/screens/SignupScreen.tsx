@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
@@ -83,8 +84,21 @@ export default function SignupScreen() {
     }
 
     try {
+      // Create the user account with email and password
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Update the user's display name in Firebase Auth
       await updateProfile(cred.user, { displayName });
+
+      // Save user data to Firestore 'users' collection for chat functionality
+      // This allows other users to see your name when starting a chat
+      await setDoc(doc(db, "users", cred.user.uid), {
+        displayName: displayName,
+        email: email,
+        photoURL: cred.user.photoURL || null,
+        createdAt: new Date(),
+      });
+
       // Navigation happens automatically via auth state change in App.tsx
     } catch (err: any) {
       const errorCode = err?.code || "";

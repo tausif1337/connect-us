@@ -9,8 +9,10 @@ import {
   TextInput,
   ActivityIndicator,
 } from "react-native";
+import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { Post } from "../types/post";
 import { AuthContext } from "../contexts/AuthContext";
+import { RootStackParamList } from "../types/navigation";
 import { ThreeDotsIcon } from "./Icons";
 import { deletePost, updatePost } from "../services/postService";
 
@@ -19,12 +21,14 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user } = useContext(AuthContext);
   const [menuVisible, setMenuVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editCaption, setEditCaption] = useState(post.caption);
   const [isUpdating, setIsUpdating] = useState(false);
   const isOwnPost = user?.uid === post.userId;
+
   const handleDelete = () => {
     Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
       { text: "Cancel", onPress: () => setMenuVisible(false), style: "cancel" },
@@ -86,7 +90,12 @@ export default function PostCard({ post }: PostCardProps) {
       <View className="bg-white mb-4 rounded-lg overflow-hidden border border-gray-200">
         {/* User Header with Menu */}
         <View className="flex-row items-center justify-between px-4 py-3">
-          <View className="flex-1 flex-row items-center">
+          <TouchableOpacity
+            className="flex-1 flex-row items-center"
+            onPress={() =>
+              navigation.navigate("UserProfile", { userId: post.userId })
+            }
+          >
             <View className="w-10 h-10 rounded-full bg-gray-300 mr-3 items-center justify-center">
               {post.userAvatar ? (
                 <Image
@@ -105,7 +114,7 @@ export default function PostCard({ post }: PostCardProps) {
                 {formatDate(post.createdAt)}
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* Three Dots Menu */}
           {isOwnPost && (

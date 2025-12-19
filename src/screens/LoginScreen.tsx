@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../services/firebase";
+import { auth, db } from "../services/firebase";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
@@ -66,7 +67,24 @@ export default function LoginScreen() {
     }
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Sign in the user
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      // Check if user data exists in Firestore, if not, create it
+      // This is helpful for users who signed up before the chat feature was added
+      const userDocRef = doc(db, "users", cred.user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        // User data doesn't exist, create it
+        await setDoc(userDocRef, {
+          displayName:
+            cred.user.displayName || cred.user.email?.split("@")[0] || "User",
+          email: cred.user.email,
+          photoURL: cred.user.photoURL || null,
+          createdAt: new Date(),
+        });
+      }
     } catch (err: any) {
       const errorCode = err?.code || "";
       const errorMessage = getErrorMessage(errorCode);

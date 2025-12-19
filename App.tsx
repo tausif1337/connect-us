@@ -5,16 +5,20 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "./src/services/firebase";
 import { AuthContext } from "./src/contexts/AuthContext";
+import { RootStackParamList } from "./src/types/navigation";
 import "./global.css";
 
 import LoginScreen from "./src/screens/LoginScreen";
 import SignupScreen from "./src/screens/SignupScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import ProfileScreen from "./src/screens/ProfileScreen";
+import UserProfileScreen from "./src/screens/UserProfileScreen";
 import SettingsScreen from "./src/screens/SettingsScreen";
 import CreatePostScreen from "./src/screens/CreatePostScreen";
+import ChatListScreen from "./src/screens/ChatListScreen";
+import ChatScreen from "./src/screens/ChatScreen";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -41,8 +45,14 @@ export default function App() {
               <>
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Profile" component={ProfileScreen} />
+                <Stack.Screen
+                  name="UserProfile"
+                  component={UserProfileScreen}
+                />
                 <Stack.Screen name="Settings" component={SettingsScreen} />
                 <Stack.Screen name="CreatePost" component={CreatePostScreen} />
+                <Stack.Screen name="ChatList" component={ChatListScreen} />
+                <Stack.Screen name="Chat" component={ChatScreen} />
               </>
             ) : (
               <>

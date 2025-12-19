@@ -19,6 +19,7 @@ import {
   UserIcon,
   SettingsIcon,
   GalleryIcon,
+  ChatIcon,
 } from "../components/Icons";
 
 export default function HomeScreen() {
@@ -48,7 +49,7 @@ export default function HomeScreen() {
             activeOpacity={0.8}
           >
             <Text className="text-white font-bold text-sm flex items-center">
-              + Post
+              +
             </Text>
           </TouchableOpacity>
         </View>
@@ -98,6 +99,16 @@ export default function HomeScreen() {
               <HomeIcon size={24} color="#111827" />
             </View>
             <Text className="text-xs font-semibold text-gray-900">Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="items-center"
+            onPress={() => navigation.navigate("ChatList")}
+            activeOpacity={0.8}
+          >
+            <View className="mb-1">
+              <ChatIcon size={24} color="#6B7280" />
+            </View>
+            <Text className="text-xs text-gray-500">Chats</Text>
           </TouchableOpacity>
           <TouchableOpacity
             className="items-center"

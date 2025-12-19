@@ -15,7 +15,16 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { AuthContext } from "../contexts/AuthContext";
 import { auth, db } from "../services/firebase";
-import { doc, getDoc, setDoc, collection, query, where, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "firebase/auth";
 import { uploadProfileImageToCloudinary } from "../services/cloudinaryService";
@@ -65,10 +74,7 @@ export default function ProfileScreen() {
 
     // Subscribe to user's posts only
     const postsRef = collection(db, "posts");
-    const q = query(
-      postsRef,
-      where("userId", "==", user.uid)
-    );
+    const q = query(postsRef, where("userId", "==", user.uid));
 
     const unsubscribe = onSnapshot(
       q,
@@ -190,6 +196,9 @@ export default function ProfileScreen() {
               <Text className="text-3xl font-bold text-gray-900">
                 Your Profile
               </Text>
+              <Text className="text-gray-500 mt-2">
+                Click on other users' names in posts to view their profiles
+              </Text>
             </View>
 
             <View className="items-center mb-8">
@@ -252,12 +261,16 @@ export default function ProfileScreen() {
 
               <View className="border border-gray-200 rounded-xl px-4 py-3.5 bg-gray-50">
                 <Text className="text-sm text-gray-500">Account Email</Text>
-                <Text className="font-semibold text-gray-900">{user?.email}</Text>
+                <Text className="font-semibold text-gray-900">
+                  {user?.email}
+                </Text>
               </View>
             </View>
 
             <View className="px-4 mt-8 mb-4">
-              <Text className="text-2xl font-bold text-gray-900">Your Posts</Text>
+              <Text className="text-2xl font-bold text-gray-900">
+                Your Posts
+              </Text>
             </View>
           </View>
         }
