@@ -3,9 +3,21 @@ import {
   getAuth,
   initializeAuth,
   browserLocalPersistence,
-  getReactNativePersistence,
+  // @ts-ignore - getReactNativePersistence is not properly exported in types
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+
+// Dynamically get React Native persistence to avoid TypeScript errors
+let getReactNativePersistence: any;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const authModule = require('firebase/auth');
+  getReactNativePersistence = authModule.getReactNativePersistence;
+} catch (e) {
+  // Fallback if module structure is different
+  getReactNativePersistence = () => browserLocalPersistence;
+}
 
 export const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -26,7 +38,7 @@ export const auth = (() => {
       // dynamic require so the app still runs if the package isn't installed
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const RNAsyncStorage = require("@react-native-async-storage/async-storage").default;
-      if (RNAsyncStorage) {
+      if (RNAsyncStorage && getReactNativePersistence) {
         persistence = getReactNativePersistence(RNAsyncStorage as any);
       }
     } catch (err) {
