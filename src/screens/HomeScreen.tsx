@@ -23,6 +23,7 @@ import {
   GalleryIcon,
   ChatIcon,
 } from "../components/Icons";
+import { isSmallDevice } from "../utils/responsive";
 
 export default function HomeScreen() {
   const navigation =
@@ -55,25 +56,25 @@ export default function HomeScreen() {
           data={posts}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <PostCard post={item} />}
-          contentContainerStyle={{ padding: 16 }}
+          contentContainerStyle={isSmallDevice ? { padding: 12 } : { padding: 16 }}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View className="flex-1 items-center justify-center py-20">
               <View className="mb-4">
-                <GalleryIcon size={64} color="#9CA3AF" />
+                <GalleryIcon size={isSmallDevice ? 48 : 64} color="#9CA3AF" />
               </View>
-              <Text className="text-gray-900 font-bold text-lg mb-2">
+              <Text className={isSmallDevice ? "text-gray-900 font-bold text-base mb-2" : "text-gray-900 font-bold text-lg mb-2"}>
                 No posts yet
               </Text>
               <Text className="text-gray-500 text-center mb-6">
                 Be the first to share something!
               </Text>
               <TouchableOpacity
-                className="bg-black rounded-full px-6 py-3"
+                className={isSmallDevice ? "bg-black rounded-full px-5 py-2.5" : "bg-black rounded-full px-6 py-3"}
                 onPress={() => navigation.navigate("CreatePost")}
                 activeOpacity={0.8}
               >
-                <Text className="text-white font-bold">Create Post</Text>
+                <Text className={isSmallDevice ? "text-white font-bold text-sm" : "text-white font-bold"}>Create Post</Text>
               </TouchableOpacity>
             </View>
           }

@@ -6,7 +6,6 @@ import {
     TouchableOpacity,
     TextInput,
     ActivityIndicator,
-    Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -18,6 +17,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import * as ImagePicker from "expo-image-picker";
 import { updateProfile } from "firebase/auth";
 import { uploadProfileImageToCloudinary } from "../services/cloudinaryService";
+import { showErrorToast, showSuccessToast } from "../utils/toastHelper";
 // Back arrow removed; native header will be used
 
 type EditProfileNavigationProp = NativeStackNavigationProp<
@@ -60,7 +60,7 @@ export default function EditProfileScreen() {
 
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permission.granted) {
-            Alert.alert("Permission required", "Photo access is required.");
+            showErrorToast("Photo access permission is required.");
             return;
         }
 
@@ -89,9 +89,9 @@ export default function EditProfileScreen() {
                 photoURL: imageUrl,
             });
 
-            Alert.alert("Success", "Profile photo updated.");
+            showSuccessToast("Profile photo updated.");
         } catch (e) {
-            Alert.alert("Upload failed", "Could not upload image.");
+            showErrorToast("Could not upload image.");
         } finally {
             setLoading(false);
         }
@@ -110,9 +110,9 @@ export default function EditProfileScreen() {
                 },
                 { merge: true }
             );
-            Alert.alert("Saved", "Bio updated successfully.");
+            showSuccessToast("Bio updated successfully.");
         } catch (e) {
-            Alert.alert("Error", "Could not save bio.");
+            showErrorToast("Could not save bio.");
         } finally {
             setLoading(false);
         }

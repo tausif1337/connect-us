@@ -4,7 +4,6 @@ import {
   TextInput,
   Text,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,6 +15,8 @@ import { doc, setDoc, collection, query, where, getDocs } from "firebase/firesto
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
+import { showErrorToast, showSuccessToast } from "../utils/toastHelper";
+import { isSmallDevice } from "../utils/responsive";
 
 type SignupScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -101,6 +102,9 @@ export default function SignupScreen() {
     try {
       // Create the user account with email and password
       const cred = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Show success toast
+      showSuccessToast("Account created successfully!");
 
       // Prepare display name
       const finalDisplayName = displayName.trim() || email.split("@")[0] || email || "User";
@@ -132,7 +136,7 @@ export default function SignupScreen() {
       } else if (errorCode === "auth/weak-password") {
         setPasswordError(errorMessage);
       } else {
-        Alert.alert("Signup Error", errorMessage);
+        showErrorToast(errorMessage);
       }
     }
   }
@@ -149,12 +153,12 @@ export default function SignupScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="flex-1 justify-center px-6 py-10">
+          <View className={isSmallDevice ? "flex-1 justify-center px-4 py-8" : "flex-1 justify-center px-6 py-10"}>
             <View className="items-center mb-8">
-              <Text className="text-3xl font-bold text-gray-900 mb-2">
+              <Text className={isSmallDevice ? "text-2xl font-bold text-gray-900 mb-2" : "text-3xl font-bold text-gray-900 mb-2"}>
                 Create Account
               </Text>
-              <Text className="text-gray-500 text-center text-sm">
+              <Text className={isSmallDevice ? "text-gray-500 text-center text-xs" : "text-gray-500 text-center text-sm"}>
                 Connect us and start sharing your moments!
               </Text>
             </View>
@@ -173,7 +177,7 @@ export default function SignupScreen() {
                   }}
                 />
                 {displayNameError ? (
-                  <Text className="text-red-500 text-sm mb-3 px-1">
+                  <Text className={isSmallDevice ? "text-red-500 text-xs mb-3 px-1" : "text-red-500 text-sm mb-3 px-1"}>
                     {displayNameError}
                   </Text>
                 ) : null}
@@ -195,7 +199,7 @@ export default function SignupScreen() {
                   autoCorrect={false}
                 />
                 {emailError ? (
-                  <Text className="text-red-500 text-sm mb-3 px-1">
+                  <Text className={isSmallDevice ? "text-red-500 text-xs mb-3 px-1" : "text-red-500 text-sm mb-3 px-1"}>
                     {emailError}
                   </Text>
                 ) : null}
@@ -217,29 +221,29 @@ export default function SignupScreen() {
                   autoCorrect={false}
                 />
                 {passwordError ? (
-                  <Text className="text-red-500 text-sm mb-3 px-1">
+                  <Text className={isSmallDevice ? "text-red-500 text-xs mb-3 px-1" : "text-red-500 text-sm mb-3 px-1"}>
                     {passwordError}
                   </Text>
                 ) : null}
               </View>
 
               <TouchableOpacity
-                className="bg-black rounded-xl py-4 mb-6"
+                className={isSmallDevice ? "bg-black rounded-xl py-3.5 mb-6" : "bg-black rounded-xl py-4 mb-6"}
                 onPress={handleSignup}
                 activeOpacity={0.8}
               >
-                <Text className="text-white text-center font-bold text-base">
+                <Text className={isSmallDevice ? "text-white text-center font-bold text-sm" : "text-white text-center font-bold text-base"}>
                   Sign Up Here
                 </Text>
               </TouchableOpacity>
             </View>
 
             <View className="flex-row items-center justify-center flex-wrap">
-              <Text className="text-gray-600 text-base">
+              <Text className={isSmallDevice ? "text-gray-600 text-sm" : "text-gray-600 text-base"}>
                 Already have an account?{" "}
               </Text>
               <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                <Text className="text-black font-bold text-base">Log In</Text>
+                <Text className={isSmallDevice ? "text-black font-bold text-sm" : "text-black font-bold text-base"}>Log In</Text>
               </TouchableOpacity>
             </View>
           </View>

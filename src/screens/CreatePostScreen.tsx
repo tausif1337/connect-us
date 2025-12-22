@@ -6,7 +6,6 @@ import {
   Image,
   TextInput,
   ActivityIndicator,
-  Alert,
   ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,6 +23,8 @@ import {
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { CameraIcon } from "../components/Icons";
+import { showErrorToast, showSuccessToast } from "../utils/toastHelper";
+import { isSmallDevice } from "../utils/responsive";
 
 export default function CreatePostScreen() {
   const navigation =
@@ -39,10 +40,7 @@ export default function CreatePostScreen() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Permission Denied",
-        "We need camera roll permissions to upload images."
-      );
+      showErrorToast("We need camera roll permissions to upload images.");
       return;
     }
 
@@ -60,12 +58,12 @@ export default function CreatePostScreen() {
 
   const handleCreatePost = async () => {
     if (!image) {
-      Alert.alert("Error", "Please select an image");
+      showErrorToast("Please select an image");
       return;
     }
 
     if (!user) {
-      Alert.alert("Error", "You must be logged in to create a post");
+      showErrorToast("You must be logged in to create a post");
       return;
     }
 
@@ -90,19 +88,15 @@ export default function CreatePostScreen() {
         caption: caption.trim(),
       });
 
-      Alert.alert("Success", "Post created successfully!", [
-        {
-          text: "OK",
-          onPress: () => navigation.navigate("Main"),
-        },
-      ]);
+      showSuccessToast("Post created successfully!");
+      navigation.navigate("Main");
 
       // Reset form
       setImage(null);
       setCaption("");
     } catch (error) {
       console.error("Error creating post:", error);
-      Alert.alert("Error", "Failed to create post. Please try again.");
+      showErrorToast("Failed to create post. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -128,13 +122,13 @@ export default function CreatePostScreen() {
       {/* Native header used */}
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="p-4">
+        <View className={isSmallDevice ? "p-3" : "p-4"}>
           {/* Image Picker */}
           <TouchableOpacity
             onPress={pickImage}
             disabled={loading}
             activeOpacity={0.8}
-            className="w-full aspect-square bg-gray-100 rounded-lg items-center justify-center mb-4 overflow-hidden"
+            className={isSmallDevice ? "w-full aspect-square bg-gray-100 rounded-lg items-center justify-center mb-3 overflow-hidden" : "w-full aspect-square bg-gray-100 rounded-lg items-center justify-center mb-4 overflow-hidden"}
           >
             {image ? (
               <Image
@@ -145,9 +139,9 @@ export default function CreatePostScreen() {
             ) : (
               <View className="items-center">
                 <View className="mb-2">
-                  <CameraIcon size={48} color="#9CA3AF" />
+                  <CameraIcon size={isSmallDevice ? 40 : 48} color="#9CA3AF" />
                 </View>
-                <Text className="text-gray-500 font-medium">
+                <Text className={isSmallDevice ? "text-gray-500 font-medium text-sm" : "text-gray-500 font-medium"}>
                   Tap to select photo
                 </Text>
               </View>
@@ -162,7 +156,7 @@ export default function CreatePostScreen() {
               className="mb-4"
               activeOpacity={0.8}
             >
-              <Text className="text-blue-600 font-semibold text-center">
+              <Text className={isSmallDevice ? "text-blue-600 font-semibold text-center text-sm" : "text-blue-600 font-semibold text-center"}>
                 Change Photo
               </Text>
             </TouchableOpacity>
@@ -170,11 +164,11 @@ export default function CreatePostScreen() {
 
           {/* Caption Input */}
           <View className="mb-4">
-            <Text className="text-gray-700 font-semibold mb-2">
+            <Text className={isSmallDevice ? "text-gray-700 font-semibold mb-2 text-sm" : "text-gray-700 font-semibold mb-2"}>
               Write a caption
             </Text>
             <TextInput
-              className="border border-gray-300 rounded-lg p-3 text-base text-gray-900 min-h-[100px]"
+              className={isSmallDevice ? "border border-gray-300 rounded-lg p-2.5 text-sm text-gray-900 min-h-[80px]" : "border border-gray-300 rounded-lg p-3 text-base text-gray-900 min-h-[100px]"}
               placeholder="What's on your mind?"
               placeholderTextColor="#9CA3AF"
               value={caption}
@@ -190,9 +184,9 @@ export default function CreatePostScreen() {
       {/* Loading Overlay */}
       {loading && (
         <View className="absolute inset-0 bg-black/50 items-center justify-center">
-          <View className="bg-white p-6 rounded-2xl items-center">
+          <View className={isSmallDevice ? "bg-white p-5 rounded-2xl items-center" : "bg-white p-6 rounded-2xl items-center"}>
             <ActivityIndicator size="large" color="#000" />
-            <Text className="text-gray-900 font-semibold mt-3">
+            <Text className={isSmallDevice ? "text-gray-900 font-semibold mt-2 text-sm" : "text-gray-900 font-semibold mt-3"}>
               Creating post...
             </Text>
           </View>

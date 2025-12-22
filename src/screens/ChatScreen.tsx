@@ -20,6 +20,7 @@ import { subscribeToMessages, sendMessage } from "../services/chatService"; // F
 import { Message } from "../types/chat"; // Type definition for message data
 import { NativeStackScreenProps } from "@react-navigation/native-stack"; // Type for navigation props
 import { RootStackParamList } from "../types/navigation"; // Type for navigation parameter list
+import { showErrorToast } from "../utils/toastHelper"; // Utility for showing toast messages
 type Props = NativeStackScreenProps<RootStackParamList, "Chat">;
 
 // Main component for the chat screen
@@ -94,6 +95,7 @@ const ChatScreen = ({ navigation, route }: Props) => {
       } catch (error) {
         // Log any errors that occur during message sending
         console.error("Error sending message:", error);
+        showErrorToast("Failed to send message");
       }
     },
     [chatRoomId, user] // Re-create function when these dependencies change

@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { TouchableOpacity, Text } from "react-native";
+import { TouchableOpacity, Text, AppState } from "react-native";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "./src/services/firebase";
 import { AuthContext } from "./src/contexts/AuthContext";
 import { RootStackParamList } from "./src/types/navigation";
+import Toast from 'react-native-toast-message';
+import * as Notifications from 'expo-notifications';
+import { registerForPushNotificationsAsync, addNotificationReceivedListener, addNotificationResponseReceivedListener } from "./src/services/notificationService";
 import "./global.css";
 
 import LoginScreen from "./src/screens/LoginScreen";
@@ -22,13 +25,41 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const notificationListener = useRef<any>(null);
+  const responseListener = useRef<any>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (usr) => {
       setUser(usr);
       setLoading(false);
+      
+      // Register for push notifications when user logs in
+      if (usr) {
+        registerForPushNotificationsAsync();
+      }
     });
-    return unsubscribe;
+    
+    // Listen for incoming notifications
+    notificationListener.current = addNotificationReceivedListener(notification => {
+      console.log('Notification received:', notification);
+      // You can add custom handling here
+    });
+
+    // Listen for notification interactions
+    responseListener.current = addNotificationResponseReceivedListener(response => {
+      console.log('Notification response received:', response);
+      // You can add custom handling here
+    });
+
+    return () => {
+      unsubscribe();
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
+    };
   }, []);
 
   if (loading) {
@@ -80,6 +111,7 @@ export default function App() {
             )}
           </Stack.Navigator>
         </NavigationContainer>
+        <Toast />
       </AuthContext.Provider>
     </SafeAreaProvider>
   );

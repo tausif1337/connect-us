@@ -18,6 +18,7 @@ import {
   getOrCreateChatRoom, // Function to create a new chat room or get existing one
 } from "../services/chatService";
 import { UserChat } from "../types/chat"; // Type definition for chat room data
+import { showErrorToast } from "../utils/toastHelper"; // Utility for showing toast messages
 
 // Helper function to get a user's display name
 // Tries multiple sources to find a suitable name to display for a user
@@ -150,32 +151,37 @@ const ChatListScreen = ({ navigation }: any) => {
     // Close the user list to return to the chat list view
     setShowUserList(false);
 
-    // Create or get the chat room between current user and selected user
-    // This ensures we don't create duplicate chat rooms
-    const chatRoomId = await getOrCreateChatRoom(
-      user.uid, // Current user's ID
-      selectedUser.uid, // Selected user's ID
-      {
-        // Current user's info
-        displayName: user.displayName || "User",
-        email: user.email || "",
-        photoURL: user.photoURL || "",
-      },
-      {
-        // Selected user's info
-        displayName: getUserDisplayName(selectedUser),
-        email: selectedUser.email || "",
-        photoURL: selectedUser.photoURL || "",
-      }
-    );
+    try {
+      // Create or get the chat room between current user and selected user
+      // This ensures we don't create duplicate chat rooms
+      const chatRoomId = await getOrCreateChatRoom(
+        user.uid, // Current user's ID
+        selectedUser.uid, // Selected user's ID
+        {
+          // Current user's info
+          displayName: user.displayName || "User",
+          email: user.email || "",
+          photoURL: user.photoURL || "",
+        },
+        {
+          // Selected user's info
+          displayName: getUserDisplayName(selectedUser),
+          email: selectedUser.email || "",
+          photoURL: selectedUser.photoURL || "",
+        }
+      );
 
-    // Navigate to the chat screen for this new/existing chat room
-    navigation.navigate("Chat", {
-      chatRoomId, // ID of the chat room we just created/got
-      otherUserId: selectedUser.uid, // ID of the person we're chatting with
-      otherUserName: getUserDisplayName(selectedUser), // Name of the person we're chatting with
-      otherUserPhoto: selectedUser.photoURL, // Photo of the person we're chatting with
-    });
+      // Navigate to the chat screen for this new/existing chat room
+      navigation.navigate("Chat", {
+        chatRoomId, // ID of the chat room we just created/got
+        otherUserId: selectedUser.uid, // ID of the person we're chatting with
+        otherUserName: getUserDisplayName(selectedUser), // Name of the person we're chatting with
+        otherUserPhoto: selectedUser.photoURL, // Photo of the person we're chatting with
+      });
+    } catch (error) {
+      console.error("Error starting chat:", error);
+      showErrorToast("Failed to start chat");
+    }
   };
 
   // Function to render each chat item in the list

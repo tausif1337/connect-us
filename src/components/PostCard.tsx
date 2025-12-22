@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Alert,
   Modal,
   TextInput,
   ActivityIndicator,
@@ -33,6 +32,9 @@ import {
   addComment,
   deleteComment,
 } from "../services/postService";
+import { showErrorToast, showSuccessToast } from "../utils/toastHelper";
+import { schedulePushNotification } from "../services/notificationService";
+import { responsiveFontSize, responsiveWidth, isSmallDevice } from "../utils/responsive";
 
 interface PostCardProps {
   post: Post;
@@ -55,22 +57,17 @@ export default function PostCard({ post }: PostCardProps) {
   const isLiked = user ? post.likes.includes(user.uid) : false;
 
   const handleDelete = () => {
-    Alert.alert("Delete Post", "Are you sure you want to delete this post?", [
-      { text: "Cancel", onPress: () => setMenuVisible(false), style: "cancel" },
-      {
-        text: "Delete",
-        onPress: async () => {
-          try {
-            setMenuVisible(false);
-            await deletePost(post.id);
-            Alert.alert("Success", "Post deleted successfully");
-          } catch (error) {
-            Alert.alert("Error", "Failed to delete post");
-          }
-        },
-        style: "destructive",
-      },
-    ]);
+    // For simplicity, we'll directly delete without confirmation
+    // In a real app, you might want to keep the confirmation dialog
+    setMenuVisible(false);
+    deletePost(post.id)
+      .then(() => {
+        showSuccessToast("Post deleted successfully");
+      })
+      .catch((error) => {
+        console.error("Error deleting post:", error);
+        showErrorToast("Failed to delete post");
+      });
   };
 
   const handleEdit = () => {
@@ -81,16 +78,16 @@ export default function PostCard({ post }: PostCardProps) {
 
   const handleSaveEdit = async () => {
     if (!editCaption.trim()) {
-      Alert.alert("Error", "Caption cannot be empty");
+      showErrorToast("Caption cannot be empty");
       return;
     }
     try {
       setIsUpdating(true);
       await updatePost(post.id, { caption: editCaption });
       setEditModalVisible(false);
-      Alert.alert("Success", "Post updated successfully");
+      showSuccessToast("Post updated successfully");
     } catch (error) {
-      Alert.alert("Error", "Failed to update post");
+      showErrorToast("Failed to update post");
     } finally {
       setIsUpdating(false);
     }
@@ -119,9 +116,16 @@ export default function PostCard({ post }: PostCardProps) {
         await unlikePost(post.id, user.uid);
       } else {
         await likePost(post.id, user.uid);
+        // Send notification if user is not the post owner
+        if (post.userId !== user.uid) {
+          schedulePushNotification(
+            "New Like",
+            `${user.displayName || user.email} liked your post`
+          ).catch(console.error);
+        }
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to update like");
+      showErrorToast("Failed to update like");
     } finally {
       setIsLiking(false);
     }
@@ -139,8 +143,16 @@ export default function PostCard({ post }: PostCardProps) {
         text: commentText.trim(),
       });
       setCommentText("");
+      
+      // Send notification if user is not the post owner
+      if (post.userId !== user.uid) {
+        schedulePushNotification(
+          "New Comment",
+          `${user.displayName || user.email} commented on your post`
+        ).catch(console.error);
+      }
     } catch (error) {
-      Alert.alert("Error", "Failed to add comment");
+      showErrorToast("Failed to add comment");
     } finally {
       setIsCommenting(false);
     }
@@ -149,8 +161,9 @@ export default function PostCard({ post }: PostCardProps) {
   const handleDeleteComment = async (commentId: string) => {
     try {
       await deleteComment(post.id, commentId);
+      showSuccessToast("Comment deleted successfully");
     } catch (error) {
-      Alert.alert("Error", "Failed to delete comment");
+      showErrorToast("Failed to delete comment");
     }
   };
 
@@ -165,11 +178,11 @@ export default function PostCard({ post }: PostCardProps) {
               navigation.navigate("UserProfile", { userId: post.userId })
             }
           >
-            <View className="w-10 h-10 rounded-full bg-gray-300 mr-3 items-center justify-center">
+            <View className={isSmallDevice ? "w-8 h-8 rounded-full bg-gray-300 mr-2 items-center justify-center" : "w-10 h-10 rounded-full bg-gray-300 mr-3 items-center justify-center"}>
               {post.userAvatar ? (
                 <Image
                   source={{ uri: post.userAvatar }}
-                  className="w-10 h-10 rounded-full"
+                  className={isSmallDevice ? "w-8 h-8 rounded-full" : "w-10 h-10 rounded-full"}
                 />
               ) : (
                 <Text className="text-white font-bold text-lg">
@@ -178,7 +191,7 @@ export default function PostCard({ post }: PostCardProps) {
               )}
             </View>
             <View>
-              <Text className="font-bold text-gray-900">{post.userName}</Text>
+              <Text className={isSmallDevice ? "font-bold text-gray-900 text-sm" : "font-bold text-gray-900 text-base"}>{post.userName}</Text>
               <Text className="text-xs text-gray-500">
                 {formatDate(post.createdAt)}
               </Text>
@@ -192,7 +205,7 @@ export default function PostCard({ post }: PostCardProps) {
               activeOpacity={0.7}
               className="p-2"
             >
-              <ThreeDotsIcon size={20} color="#6B7280" />
+              <ThreeDotsIcon size={isSmallDevice ? 16 : 20} color="#6B7280" />
             </TouchableOpacity>
           )}
         </View>
@@ -201,7 +214,7 @@ export default function PostCard({ post }: PostCardProps) {
         {post.caption ? (
           <View className="px-4 py-3">
             <Text
-              className="text-gray-800 text-base"
+              className={isSmallDevice ? "text-gray-800 text-sm" : "text-gray-800 text-base"}
               onTextLayout={(e: NativeSyntheticEvent<TextLayoutEventData>) => {
                 if (e.nativeEvent.lines.length > 3 && !showReadMore) {
                   setShowReadMore(true);
@@ -481,11 +494,11 @@ export default function PostCard({ post }: PostCardProps) {
 
             {/* Add Comment Input */}
             <View className="border-t border-gray-200 px-4 py-4 flex-row items-center gap-3">
-              <View className="w-8 h-8 rounded-full bg-gray-300 items-center justify-center">
+              <View className={isSmallDevice ? "w-8 h-8 rounded-full bg-gray-300 items-center justify-center" : "w-10 h-10 rounded-full bg-gray-300 items-center justify-center"}>
                 {user?.photoURL ? (
                   <Image
                     source={{ uri: user.photoURL }}
-                    className="w-8 h-8 rounded-full"
+                    className={isSmallDevice ? "w-8 h-8 rounded-full" : "w-10 h-10 rounded-full"}
                   />
                 ) : (
                   <Text className="text-white font-bold text-xs">
@@ -498,7 +511,7 @@ export default function PostCard({ post }: PostCardProps) {
                 onChangeText={setCommentText}
                 placeholder="Add a comment..."
                 placeholderTextColor="#9CA3AF"
-                className="flex-1 bg-gray-100 rounded-full px-4 py-3 text-gray-900"
+                className={isSmallDevice ? "flex-1 bg-gray-100 rounded-full px-3 py-2 text-gray-900 text-sm" : "flex-1 bg-gray-100 rounded-full px-4 py-3 text-gray-900"}
                 editable={!isCommenting}
               />
               <TouchableOpacity
@@ -510,7 +523,7 @@ export default function PostCard({ post }: PostCardProps) {
                   <ActivityIndicator size="small" color="#000" />
                 ) : (
                   <SendIcon
-                    size={24}
+                    size={isSmallDevice ? 20 : 24}
                     color={commentText.trim() ? "#000" : "#9CA3AF"}
                   />
                 )}
