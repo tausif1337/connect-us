@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
@@ -17,6 +18,12 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import { showErrorToast, showSuccessToast } from "../utils/toastHelper";
 import { isSmallDevice } from "../utils/responsive";
+import { GoogleIcon } from "../components/Icons";
+import { 
+  useAuthRequest, 
+  googleConfig, 
+  handleGoogleSignIn 
+} from "../services/googleAuthService";
 
 type SignupScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -30,7 +37,42 @@ export default function SignupScreen() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [displayNameError, setDisplayNameError] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const navigation = useNavigation<SignupScreenNavigationProp>();
+
+  // Initialize Google Sign-In
+  const [request, response, promptAsync] = useAuthRequest(googleConfig);
+
+  // Handle Google Sign-In response
+  useEffect(() => {
+    if (response) {
+      handleGoogleAuthResponse();
+    }
+  }, [response]);
+
+  async function handleGoogleAuthResponse() {
+    if (!response) return;
+
+    setIsGoogleLoading(true);
+    const result = await handleGoogleSignIn(response);
+    setIsGoogleLoading(false);
+
+    if (result.success) {
+      showSuccessToast("Successfully signed up with Google!");
+    } else if (result.error) {
+      showErrorToast(result.error);
+    }
+  }
+
+  async function onGoogleSignIn() {
+    try {
+      setIsGoogleLoading(true);
+      await promptAsync();
+    } catch (error) {
+      setIsGoogleLoading(false);
+      showErrorToast("Failed to initiate Google Sign-In");
+    }
+  }
 
   function validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -235,6 +277,32 @@ export default function SignupScreen() {
                 <Text className={isSmallDevice ? "text-white text-center font-bold text-sm" : "text-white text-center font-bold text-base"}>
                   Sign Up Here
                 </Text>
+              </TouchableOpacity>
+
+              {/* Divider */}
+              <View className="flex-row items-center mb-6">
+                <View className="flex-1 h-px bg-gray-300" />
+                <Text className={isSmallDevice ? "mx-4 text-gray-500 text-xs" : "mx-4 text-gray-500 text-sm"}>OR</Text>
+                <View className="flex-1 h-px bg-gray-300" />
+              </View>
+
+              {/* Google Sign-In Button */}
+              <TouchableOpacity
+                className={isSmallDevice ? "border border-gray-300 rounded-xl py-3.5 mb-6 flex-row items-center justify-center" : "border border-gray-300 rounded-xl py-4 mb-6 flex-row items-center justify-center"}
+                onPress={onGoogleSignIn}
+                activeOpacity={0.8}
+                disabled={!request || isGoogleLoading}
+              >
+                {isGoogleLoading ? (
+                  <ActivityIndicator color="#000" />
+                ) : (
+                  <>
+                    <GoogleIcon size={isSmallDevice ? 20 : 24} color="#4285F4" />
+                    <Text className={isSmallDevice ? "text-gray-900 text-center font-semibold text-sm ml-3" : "text-gray-900 text-center font-semibold text-base ml-3"}>
+                      Continue with Google
+                    </Text>
+                  </>
+                )}
               </TouchableOpacity>
             </View>
 

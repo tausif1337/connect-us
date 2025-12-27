@@ -1,5 +1,5 @@
 import React from "react";
-import { MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Feather, AntDesign } from "@expo/vector-icons";
 
 interface IconProps {
   size?: number;
@@ -67,4 +67,9 @@ export function CommentIcon({ size = 24, color = "#000" }: IconProps) {
 // Send Icon (for posting comments)
 export function SendIcon({ size = 24, color = "#000" }: IconProps) {
   return <Feather name="send" size={size} color={color} />;
+}
+
+// Google Icon (for Google Sign-In)
+export function GoogleIcon({ size = 24, color = "#4285F4" }: IconProps) {
+  return <AntDesign name="google" size={size} color={color} />;
 }
