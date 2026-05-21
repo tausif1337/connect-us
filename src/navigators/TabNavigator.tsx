@@ -5,11 +5,13 @@ import {
   UserIcon,
   SettingsIcon,
   ChatIcon,
+  TrendingIcon,
 } from "../components/Icons";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ChatListScreen from "../screens/ChatListScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import TrendingScreen from "../screens/TrendingScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -23,7 +25,7 @@ export default function TabNavigator() {
           backgroundColor: "#fff",
           borderTopWidth: 1,
           borderTopColor: "#E5E7EB",
-          paddingBottom: 10,
+          paddingBottom: 60,
           paddingTop: 10,
           height: 70,
         },
@@ -53,6 +55,18 @@ export default function TabNavigator() {
           title: "Chats",
           tabBarIcon: ({ color, size }) => (
             <ChatIcon size={size} color={color} />
+          ),
+          headerShown: true,
+          headerTitleAlign: "center",
+        }}
+      /> 
+      <Tab.Screen
+        name="Trending"
+        component={TrendingScreen}
+        options={{
+          title: "Trending",
+          tabBarIcon: ({ color, size }) => (
+            <TrendingIcon size={size} color={color} />
           ),
           headerShown: true,
           headerTitleAlign: "center",

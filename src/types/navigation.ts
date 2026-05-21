@@ -1,5 +1,6 @@
 // Navigation type definitions for all screens in the app
 // This tells TypeScript what parameters each screen expects
+import { Post } from './post';
 
 export type RootStackParamList = {
   Login: undefined; // Login screen doesn't need any params
@@ -14,7 +15,11 @@ export type RootStackParamList = {
     userId: string; // The ID of the user whose profile to view
   };
   CreatePost: undefined; // CreatePost screen doesn't need any params
+  PostActionsSheet: {
+    post: Post;
+  };
   ChatList: undefined; // ChatList screen doesn't need any params
+  Trending: undefined; // ChatList screen doesn't need any params
   Chat: {
     // Chat screen needs these parameters:
     chatRoomId: string; // The ID of the chat room

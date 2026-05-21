@@ -12,6 +12,7 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
 } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { Post } from "../types/post";
@@ -35,6 +36,11 @@ import {
 import { showErrorToast, showSuccessToast } from "../utils/toastHelper";
 import { schedulePushNotification } from "../services/notificationService";
 import { responsiveFontSize, responsiveWidth, isSmallDevice } from "../utils/responsive";
+import { useCallback, useMemo, useRef } from 'react';
+import { StyleSheet, Button } from 'react-native';   
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet, { BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
+ 
 
 interface PostCardProps {
   post: Post;
@@ -167,8 +173,19 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
+  // 1. Ref to control the sheet
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // 2. Points where the sheet will rest (e.g., 25% height and 50% height)
+  const snapPoints = useMemo(() => ['25%', '50%', '90%'], []);
+
+  // 3. Callbacks to open/close
+  const handleOpenPress = () => bottomSheetRef.current?.expand();
+  const handleClosePress = () => bottomSheetRef.current?.close();
+
   return (
-    <>
+    <> 
+    
       <View className="bg-white mb-4 rounded-lg overflow-hidden border border-gray-200">
         {/* User Header with Menu */}
         <View className="flex-row items-center justify-between px-4 py-3">
@@ -270,7 +287,7 @@ export default function PostCard({ post }: PostCardProps) {
 
             {/* Comment Button */}
             <TouchableOpacity
-              onPress={() => setCommentsModalVisible(true)}
+              onPress={() => navigation.navigate("PostActionsSheet", { post: post })}
               className="flex-row items-center"
               activeOpacity={0.7}
             >
@@ -408,15 +425,16 @@ export default function PostCard({ post }: PostCardProps) {
         visible={commentsModalVisible}
         animationType="slide"
         onRequestClose={() => setCommentsModalVisible(false)}
+        className="!bg-red-500 mt-0 pt-0"
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className="flex-1 bg-white"
         >
-          <View className="flex-1 pt-16 pb-8">
+          <View className="flex-1 pt-4 pb-4">
             {/* Header */}
             <View className="flex-row items-center justify-between px-4 pb-6 pt-2 border-b border-gray-200">
-              <Text className="text-xl font-bold">Comments</Text>
+              <Text className="text-xl font-medium">Comments</Text>
               <TouchableOpacity onPress={() => setCommentsModalVisible(false)}>
                 <Text className="text-gray-500 text-lg">✕</Text>
               </TouchableOpacity>
@@ -531,7 +549,9 @@ export default function PostCard({ post }: PostCardProps) {
             </View>
           </View>
         </KeyboardAvoidingView>
-      </Modal>
+      </Modal>   
     </>
   );
 }
+
+ 

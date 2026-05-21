@@ -21,6 +21,7 @@ import { Message } from "../types/chat"; // Type definition for message data
 import { NativeStackScreenProps } from "@react-navigation/native-stack"; // Type for navigation props
 import { RootStackParamList } from "../types/navigation"; // Type for navigation parameter list
 import { showErrorToast } from "../utils/toastHelper"; // Utility for showing toast messages
+
 type Props = NativeStackScreenProps<RootStackParamList, "Chat">;
 
 // Main component for the chat screen
@@ -131,7 +132,7 @@ const ChatScreen = ({ navigation, route }: Props) => {
     <SafeAreaView
       className="flex-1 bg-white pt-4 pb-8"
       edges={["top", "bottom"]}
-    >
+    > 
       <View className="flex-1 bg-white px-2">
         {/* Native header used */}
 
@@ -174,6 +175,8 @@ const ChatScreen = ({ navigation, route }: Props) => {
           }}
         />
       </View>
+
+     
     </SafeAreaView>
   );
 };

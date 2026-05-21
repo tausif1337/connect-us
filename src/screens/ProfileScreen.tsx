@@ -188,7 +188,7 @@ export default function ProfileScreen() {
                 className={isSmallDevice ? "bg-black rounded-lg py-2.5" : "bg-black rounded-xl py-3"}
                 activeOpacity={0.8}
               >
-                <Text className={isSmallDevice ? "text-white font-bold text-sm text-center" : "text-white font-bold text-base text-center"}>
+                <Text className={isSmallDevice ? "text-white font-bold text-sm text-center" : "text-white font-medium text-base text-center"}>
                   Edit Profile
                 </Text>
               </TouchableOpacity>

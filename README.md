@@ -126,6 +126,18 @@ Replace the placeholder values with your actual Firebase configuration.
    - Set signing mode to "Unsigned"
 4. Update the Cloudinary URL in `src/uploadImageToCloudinary.ts` with your cloud name
 
+To ignore this error "ERROR  Error loading user posts: [FirebaseError: Missing or insufficient permissions.]" just go to firebase console and enable the read and write permissions for the firestore database.
+
+Firebase Console -> Firestore Database -> Rules -> Edit rules -> Paste the above code -> Publish
+
+"allow read, write: if true;"
+
+
+
+
+ 
+
+
 ### 7. Run the App
 
 ```bash
